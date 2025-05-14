@@ -60,7 +60,7 @@ __doc__: str = """ Run inference. Usage examples:
 python run.py --model_name "gpt4" --data_path "https://github.com/pvlib/pvlib-python/issues/1603" --config_file "config/default_from_url.yaml"
 
 # Run with SiliconFlow model:
-python run.py --model_name "qwen-coder-7b" --model_provider "siliconflow" --siliconflow_api_key "your_api_key_here" --data_path "https://github.com/example/repo/issues/123" --config_file "config/default_from_url.yaml"
+python run.py --model_name "qwen-coder-7b"  --siliconflow_api_key "your_api_key_here" --data_path "https://github.com/example/repo/issues/123" --config_file "config/default_from_url.yaml"
 
 # Apply a patch in a local repository to an issue specified as Markdown file and run a custom installer script in the container
 python run.py --model_name "gpt4" --data_path "/path/to/my_issue.md" --repo_path "/path/to/my/local/repo" --environment_setup "/path/to/setup.sh" --config_file "config/default_from_url.yaml" --apply_patch_locally
@@ -445,35 +445,36 @@ class Main:
     def should_skip(self, instance_id: str) -> bool:
         """Check if we should skip this instance based on the instance filter and skip_existing flag."""
         # Skip instances that don't match the instance filter
-        if re.match(self.args.instance_filter, instance_id) is None:
-            logger.info(f"⏭️ Instance filter not matched. Skipping instance {instance_id}")
-            return True
+        # if re.match(self.args.instance_filter, instance_id) is None:
+        #     logger.info(f"⏭️ Instance filter not matched. Skipping instance {instance_id}")
+        #     return True
 
-        # If flag is set to False, don't skip
-        if not self.args.skip_existing:
-            return False
+        # # If flag is set to False, don't skip
+        # if not self.args.skip_existing:
+        #     return False
 
-        # Check if there's an existing trajectory for this instance
-        log_path = self.traj_dir / (instance_id + ".traj")
-        if not log_path.exists():
-            return False
+        # # Check if there's an existing trajectory for this instance
+        # log_path = self.traj_dir / (instance_id + ".traj")
+        # if not log_path.exists():
+        #     return False
 
-        content = log_path.read_text()
-        if not content.strip():
-            logger.warning("Found empty trajectory: %s. Removing.", log_path)
-            log_path.unlink()
-            return False
+        # content = log_path.read_text()
+        # if not content.strip():
+        #     logger.warning("Found empty trajectory: %s. Removing.", log_path)
+        #     log_path.unlink()
+        #     return False
 
-        data = json.loads(content)
-        # If the trajectory has no exit status, it's incomplete and we will redo it
-        exit_status = data["info"].get("exit_status", None)
-        if exit_status == "early_exit" or exit_status is None:
-            logger.warning(f"Found existing trajectory with no exit status: {log_path}. Removing.")
-            log_path.unlink()
-            return False
+        # data = json.loads(content)
+        # # If the trajectory has no exit status, it's incomplete and we will redo it
+        # exit_status = data["info"].get("exit_status", None)
+        # if exit_status == "early_exit" or exit_status is None:
+        #     logger.warning(f"Found existing trajectory with no exit status: {log_path}. Removing.")
+        #     log_path.unlink()
+        #     return False
 
-        logger.info(f"⏭️ Skipping existing trajectory: {log_path}")
-        return True
+        # logger.info(f"⏭️ Skipping existing trajectory: {log_path}")
+        # return True
+        return False
 
     def _save_predictions(self, instance_id: str, info, challenge: dict[str, str] | None):
         output_file = self.traj_dir / "all_preds.jsonl"

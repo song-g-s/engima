@@ -1104,7 +1104,7 @@ class SiliconFlowModel(BaseModel):
             if response.status_code == 429:
                 logger.warning(f"Rate limit exceeded: {response.text[:200]}...")
                 # 可以根据错误消息中的指导等待一段时间
-                wait_time = 10  # 默认等待10秒
+                wait_time = 40  # 默认等待40秒
                 import re
                 import time
                 try:

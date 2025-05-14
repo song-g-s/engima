@@ -197,3 +197,6 @@ data/**
 # Disasm / Decomp output
 *.decomp.json
 *.disas.json
+
+
+output.txt
