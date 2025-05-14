@@ -18,6 +18,8 @@ from tenacity import (
     stop_after_attempt,
     wait_random_exponential,
 )
+# 在import部分添加
+import requests
 
 from sweagent.agent.commands import Command
 from sweagent.utils.config import keys_config
@@ -46,7 +48,10 @@ class ModelArguments(FrozenSerializable):
     replay_path: str | None = None
     # Host URL when using Ollama model
     host_url: str = "localhost:11434"
-
+    # SiliconFlow API key
+    siliconflow_api_key: str = ""
+    # SiliconFlow API URL
+    siliconflow_api_url: str = "https://api.siliconflow.cn/v1/chat/completions"
 
 @dataclass
 class APIStats(Serializable):
@@ -987,6 +992,157 @@ class InstantEmptySubmitTestModel(BaseModel):
         return action
 
 
+# 在现有模型类之后添加SiliconFlowModel类
+class SiliconFlowModel(BaseModel):
+    MODELS = {
+        "Qwen/Qwen2.5-Coder-7B-Instruct": {
+            "max_context": 32_000,
+            "cost_per_input_token": 0.0000005,  # 根据实际成本调整
+            "cost_per_output_token": 0.0000005, # 根据实际成本调整
+        },
+        "Qwen/Qwen2.5-Coder-72B-Instruct": {
+            "max_context": 32_000,
+            "cost_per_input_token": 0.000001,   # 根据实际成本调整
+            "cost_per_output_token": 0.000001,  # 根据实际成本调整
+        },
+        "Pro/Qwen2.5-7B-Instruct": {
+            "max_context": 32_000,
+            "cost_per_input_token": 0.0000005,  # 根据实际成本调整
+            "cost_per_output_token": 0.0000005, # 根据实际成本调整
+        },
+        "deepseek/deepseek-v2": {
+            "max_context": 32_000,
+            "cost_per_input_token": 0.000001,   # 根据实际成本调整
+            "cost_per_output_token": 0.000001,  # 根据实际成本调整
+        },
+        "Pro/deepseek-ai/DeepSeek-V3": {
+            "max_context": 1_024_000_000_000_000_000_000,
+            "cost_per_input_token": 0.000001,   # 根据实际成本调整
+            "cost_per_output_token": 0.000004,  # 根据实际成本调整
+        }
+    }
+
+    SHORTCUTS = {
+        "qwen-coder-7b": "Qwen/Qwen2.5-Coder-7B-Instruct",
+        "qwen-coder-72b": "Qwen/Qwen2.5-Coder-72B-Instruct",
+        "qwen-7b": "Pro/Qwen2.5-7B-Instruct",
+        "deepseek-v2": "deepseek/deepseek-v2",
+    }
+
+    def __init__(self, args: ModelArguments, commands: list[Command]):
+        super().__init__(args, commands)
+        
+        # 优先使用命令行参数中指定的API密钥
+        self.api_key = args.siliconflow_api_key
+        
+        # 如果命令行参数中没有提供，则从环境变量或配置文件中读取
+        if not self.api_key:
+            self.api_key = keys_config.get("SILICONFLOW_API_KEY", "")
+       
+        self.api_key = keys_config.get("SILICONFLOW_API_KEY", "")
+        if not self.api_key:
+            msg = "SiliconFlow API key is not set. Please set SILICONFLOW_API_KEY in your environment or config."
+            raise ValueError(msg)
+        
+        # 设置API URL和请求头
+        # self.api_url = keys_config.get("SILICONFLOW_API_URL", "https://api.siliconflow.cn/v1/chat/completions")
+        self.api_url = args.siliconflow_api_url
+        if not self.api_url:
+            self.api_url = keys_config.get("SILICONFLOW_API_URL", "https://api.siliconflow.cn/v1/chat/completions")
+        
+        self.headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        # 处理Pro/前缀的模型
+        if self.api_model.startswith("Pro/"):
+            self.api_model_display = self.api_model
+            self.api_model = self.api_model.replace("Pro/", "")
+        else:
+            self.api_model_display = self.api_model
+
+    def history_to_messages(
+        self,
+        history: list[dict[str, str]],
+        is_demonstration: bool = False,
+    ) -> str | list[dict[str, str]]:
+        """
+        创建适用于SiliconFlow API的messages格式
+        """
+        # 如果是演示，移除系统消息
+        if is_demonstration:
+            history = [entry for entry in history if entry["role"] != "system"]
+            return "\n".join([entry["content"] for entry in history])
+        # 返回只包含role和content字段的历史记录
+        return [{k: v for k, v in entry.items() if k in ["role", "content"]} for entry in history]
+
+    @retry(
+        wait=wait_random_exponential(min=1, max=60),
+        stop=stop_after_attempt(_MAX_RETRIES),
+        retry=retry_if_not_exception_type((CostLimitExceededError, RuntimeError)),
+    )
+    def query(self, history: list[dict[str, str]]) -> str:
+        """
+        使用SiliconFlow API查询并返回响应
+        """
+        try:
+            # 准备请求参数
+            messages = self.history_to_messages(history)
+            payload = {
+                "model": self.api_model,
+                "messages": messages,
+                "temperature": self.args.temperature,
+                "top_p": self.args.top_p,
+                "max_tokens": 2048,  # 可以根据需要调整
+                "stream": False
+            }
+            
+            logger.debug(f"Querying SiliconFlow API with model: {self.api_model_display}")
+            response = requests.post(self.api_url, headers=self.headers, json=payload, timeout=60)
+            
+            if response.status_code == 429:
+                logger.warning(f"Rate limit exceeded: {response.text[:200]}...")
+                # 可以根据错误消息中的指导等待一段时间
+                wait_time = 10  # 默认等待10秒
+                import re
+                import time
+                try:
+                    wait_match = re.search(r"retry after (\d+)", response.text.lower())
+                    if wait_match:
+                        wait_time = int(wait_match.group(1))
+                except:
+                    pass
+                logger.info(f"Waiting for {wait_time} seconds before retrying...")
+                time.sleep(wait_time)
+                response.raise_for_status()  # 触发重试
+            
+            response.raise_for_status()
+            result = response.json()
+            
+            # 检查响应格式是否正确
+            if not result or "choices" not in result or not result["choices"]:
+                msg = f"Unexpected response format from SiliconFlow API: {str(result)[:100]}..."
+                raise RuntimeError(msg)
+            
+            # 获取响应内容
+            content = result["choices"][0]["message"]["content"]
+            
+            # 计算token使用量
+            input_tokens = result["usage"]["prompt_tokens"]
+            output_tokens = result["usage"]["completion_tokens"]
+            self.update_stats(input_tokens, output_tokens)
+            
+            return content
+            
+        except requests.exceptions.RequestException as e:
+            logger.exception(f"Error querying SiliconFlow API: {e}")
+            if "context window" in str(e).lower():
+                msg = f"Context window ({self.model_metadata['max_context']} tokens) exceeded"
+                raise ContextWindowExceededError(msg) from e
+            raise
+
+# 在现有的model_registry字典中添加SiliconFlow
 def get_model(args: ModelArguments, commands: list[Command] | None = None):
     """
     Returns correct model object given arguments and commands
@@ -1016,6 +1172,8 @@ def get_model(args: ModelArguments, commands: list[Command] | None = None):
         return OllamaModel(args, commands)
     elif args.model_name.startswith("deepseek"):
         return DeepSeekModel(args, commands)
+    elif args.model_name.startswith("Qwen") or args.model_name.startswith("Pro/") or args.model_name in SiliconFlowModel.SHORTCUTS:
+        return SiliconFlowModel(args, commands)  # 添加这一行
     elif args.model_name in TogetherModel.SHORTCUTS:
         return TogetherModel(args, commands)
     elif args.model_name in GroqModel.SHORTCUTS:

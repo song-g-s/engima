@@ -56,8 +56,12 @@ from sweagent.environment.utils import (
 __doc__: str = """ Run inference. Usage examples:
 
 ```bash
-# Run over a github issue:
+# Run over a github issue with OpenAI:
 python run.py --model_name "gpt4" --data_path "https://github.com/pvlib/pvlib-python/issues/1603" --config_file "config/default_from_url.yaml"
+
+# Run with SiliconFlow model:
+python run.py --model_name "qwen-coder-7b" --model_provider "siliconflow" --siliconflow_api_key "your_api_key_here" --data_path "https://github.com/example/repo/issues/123" --config_file "config/default_from_url.yaml"
+
 # Apply a patch in a local repository to an issue specified as Markdown file and run a custom installer script in the container
 python run.py --model_name "gpt4" --data_path "/path/to/my_issue.md" --repo_path "/path/to/my/local/repo" --environment_setup "/path/to/setup.sh" --config_file "config/default_from_url.yaml" --apply_patch_locally
 ```
@@ -515,6 +519,10 @@ def get_args(args=None) -> ScriptArguments:
                 per_instance_cost_limit=3.0,
                 temperature=0.0,
                 top_p=0.95,
+                # 添加SiliconFlow参数的默认值
+                siliconflow_api_key="",
+                siliconflow_api_url="https://api.siliconflow.cn/v1/chat/completions",
+  
             ),
             config_file=CONFIG_DIR / "default.yaml",
         ),
