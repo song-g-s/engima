@@ -318,8 +318,10 @@ class Main:
         if args.print_config:
             logger.info(f"📙 Arguments: {args.dumps_yaml()}")
         self.args = args
-        self.agent = Agent("primary", args.agent)
+        
         self.env = SWEEnv(args.environment)
+        logger.info(f"Environment: {self.env}")
+        self.agent = Agent("primary", args.agent)
         self._save_arguments()
         default_hooks = [
             SaveApplyPatchHook(),
