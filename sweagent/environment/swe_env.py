@@ -394,7 +394,7 @@ class SWEEnv(gym.Env):
         if self.install_environment:
             self.install_env()
         # Install mypy for linting purposes
-        self.communicate_with_handling("pip install flake8", error_msg="Failed to install flake8 (lint library)")
+        self.communicate_with_handling("pip install flake8 -i https://mirrors.aliyun.com/pypi/simple/", error_msg="Failed to install flake8 (lint library)")
 
         if self.args.cache_task_images:
             envs = self.communicate("env")

@@ -1019,6 +1019,16 @@ class SiliconFlowModel(BaseModel):
             "max_context": 1_024_000_000_000_000_000_000,
             "cost_per_input_token": 0.000001,   # 根据实际成本调整
             "cost_per_output_token": 0.000004,  # 根据实际成本调整
+        },
+        "Qwen/Qwen3-32B": {
+            "max_context": 1_024_000_000_000_000_000_000,
+            "cost_per_input_token": 0.000001,   # 根据实际成本调整
+            "cost_per_output_token": 0.000004,  # 根据实际成本调整
+        },
+        "Qwen/QwQ-32B": {
+            "max_context": 1_024_000_000_000_000_000_000,
+            "cost_per_input_token": 0.000001,   # 根据实际成本调整
+            "cost_per_output_token": 0.000004,  # 根据实际成本调整
         }
     }
 
@@ -1104,7 +1114,7 @@ class SiliconFlowModel(BaseModel):
             if response.status_code == 429:
                 logger.warning(f"Rate limit exceeded: {response.text[:200]}...")
                 # 可以根据错误消息中的指导等待一段时间
-                wait_time = 40  # 默认等待40秒
+                wait_time = 10  # 默认等待40秒
                 import re
                 import time
                 try:
