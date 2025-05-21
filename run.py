@@ -389,6 +389,13 @@ class Main:
             traj_dir=self.traj_dir,
             return_type="info_trajectory",
         )
+        
+        with open('result.txt', 'a', encoding='utf-8') as file:
+            if info == "fail":
+                file.write("\tfail!!!!!!!!!!!!!!!!!!!!\n")
+            else:
+                file.write("\tdone\n")
+        
         self._save_predictions(instance_id, info, challenge)
         for hook in self.hooks:
             hook.on_instance_completed(info=info, trajectory=trajectory)

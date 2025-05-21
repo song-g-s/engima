@@ -914,9 +914,12 @@ def get_instances(
         elif is_github_repo_url(file_path):
             ib.set_repo_info_from_gh_url(file_path, base_commit=base_commit)
         else:
-            msg = f"Could not determine repo path from {file_path=}, {repo_path=}"
-            raise ValueError(msg)
-
+            #msg = f"Could not determine repo path from {file_path=}, {repo_path=}"
+            #raise ValueError(msg)
+            print(f"Could not determine repo path from {file_path}, {repo_path}, force run")
+            ib.set_problem_statement_from_file(file_path)
+            ib.set_repo_info_from_local_path(file_path.replace("challenge.json", ""), "FFFFFFFF")
+        #print(ib.args)
         return [ib.build()]
 
     if base_commit:

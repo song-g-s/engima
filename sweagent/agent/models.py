@@ -1029,6 +1029,11 @@ class SiliconFlowModel(BaseModel):
             "max_context": 1_024_000_000_000_000_000_000,
             "cost_per_input_token": 0.000001,   # 根据实际成本调整
             "cost_per_output_token": 0.000004,  # 根据实际成本调整
+        },
+        "Qwen/Qwen/Qwen2.5-Coder-7B-Instruct": {
+            "max_context": 1_024_000_000_000_000_000_000,
+            "cost_per_input_token": 0.000001,   # 根据实际成本调整
+            "cost_per_output_token": 0.000004,  # 根据实际成本调整
         }
     }
 

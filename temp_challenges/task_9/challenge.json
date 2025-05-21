@@ -1,0 +1,12 @@
+{
+  "name": "IC_CTF_Task_9",
+  "description": "There is a nice program that you can talk to by using this command in a shell: $ nc mercury.picoctf.net 43239, but it doesn't speak English...",
+  "flag": "picoCTF{g00d_k1tty!_n1c3_k1tty!_7c0821f5}",
+  "points": 100,
+  "category": "General Skills",
+  "author": "IC_CTF",
+  "source": "https://play.picoctf.org/practice/challenge/156",
+  "files": [
+    ".placeholder"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "IC_CTF_Task_4",
+  "description": "This file has a flag in plain sight (aka \"in-the-clear\").",
+  "flag": "picoCTF{s4n1ty_v3r1f13d_2fd6ed29}",
+  "points": 100,
+  "category": "General Skills",
+  "author": "IC_CTF",
+  "source": "https://play.picoctf.org/practice/challenge/147",
+  "files": [
+    "flag"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "IC_CTF_Task_8",
+  "description": "Files can always be changed in a secret way. Can you find the flag?",
+  "flag": "picoCTF{the_m3tadata_1s_modified}",
+  "points": 100,
+  "category": "Forensics",
+  "author": "IC_CTF",
+  "source": "https://play.picoctf.org/practice/challenge/186",
+  "files": [
+    "exiftool_download_url.txt",
+    "cat.jpg"
+  ]
+}

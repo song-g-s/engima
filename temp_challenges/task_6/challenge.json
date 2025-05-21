@@ -1,0 +1,14 @@
+{
+  "name": "IC_CTF_Task_6",
+  "description": "Python scripts are invoked kind of like programs in the Terminal... Can you run this Python script using this password to get the flag?",
+  "flag": "picoCTF{4p0110_1n_7h3_h0us3_ac9bd0ff}",
+  "points": 100,
+  "category": "General Skills",
+  "author": "IC_CTF",
+  "source": "https://play.picoctf.org/practice/challenge/166",
+  "files": [
+    "pw.txt",
+    "ende.py",
+    "flag.txt.en"
+  ]
+}

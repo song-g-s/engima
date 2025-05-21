@@ -1,0 +1,13 @@
+{
+  "name": "IC_CTF_Task_11",
+  "description": "Can you look at the data in this binary: static? The given BASH script might help!",
+  "flag": "picoCTF{d15a5m_t34s3r_6f8c8200}",
+  "points": 100,
+  "category": "General Skills",
+  "author": "IC_CTF",
+  "source": "https://play.picoctf.org/practice/challenge/163",
+  "files": [
+    "ltdis.sh",
+    "static"
+  ]
+}

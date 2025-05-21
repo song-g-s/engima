@@ -1,0 +1,12 @@
+{
+  "name": "IC_CTF_Task_3",
+  "description": "I stopped using YellowPages and moved onto WhitePages... but the page they gave me is all blank!",
+  "flag": "picoCTF{not_all_spaces_are_created_equal_c54f27cd05c2189f8147cc6f5deb2e56}",
+  "points": 100,
+  "category": "Forensics",
+  "author": "IC_CTF",
+  "source": "https://play.picoctf.org/practice/challenge/51",
+  "files": [
+    "whitepages_task_3.txt"
+  ]
+}

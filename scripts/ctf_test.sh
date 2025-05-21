@@ -14,8 +14,8 @@ python run.py \
   --siliconflow_api_key "" \
   --ctf \
   --image_name sweagent/enigma:latest \
-  --data_path ../LLM_CTF_Database/test/2018/CSAW-Finals/misc/leaked_flag/challenge.json \
-  --repo_path ../LLM_CTF_Database/test/2018/CSAW-Finals/misc/leaked_flag/ \
+  --data_path ../LLM_CTF_Database/development/2013/CSAW-Finals/web/historypeats/challenge.json \
+  --repo_path ../LLM_CTF_Database/development/2013/CSAW-Finals/web/historypeats/ \
   --config_file config/default_ctf.yaml
   
 # 或使用环境变量提供API密钥

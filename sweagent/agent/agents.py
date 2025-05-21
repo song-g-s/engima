@@ -395,7 +395,7 @@ class Agent:
         # self.model = get_model(self._args.model, self.config._commands + self.config.subroutine_types)
         # fixme: This doesn't reset total cost
         system_msg = self.config.system_template.format(**self.system_args, **self.instance_args)
-        self.logger.info(f"SYSTEM ({self.name})\n{system_msg}")
+        self.logger.info(f"SYSTEM ({self.name})\n{system_msg[:100]}")
         self._append_history(HistoryItem({"role": "system", "content": system_msg, "agent": self.name}))
         if "history_to_messages" in dir(self.model):
             for demonstration_path in self.config.demonstrations:
@@ -1062,11 +1062,17 @@ class Agent:
         for hook in self.hooks:
             hook.on_run_start()
         done = False
+        i = 0
         while not done:
             observation, done = self._run_step(observation)
             self.save_trajectory()
             if done:
                 done = True
+            if i >= 20:
+                for hook in self.hooks:
+                    hook.on_run_done(trajectory=self.trajectory, info=self.info)
+                return "fail", self.trajectory
+            i += 1
         for hook in self.hooks:
             hook.on_run_done(trajectory=self.trajectory, info=self.info)
 

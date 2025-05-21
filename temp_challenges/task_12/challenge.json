@@ -1,0 +1,13 @@
+{
+  "name": "IC_CTF_Task_12",
+  "description": "In RSA, a small e value can be problematic, but what about N? Can you decrypt this?",
+  "flag": "picoCTF{sma11_N_n0_g0od_00264570}",
+  "points": 100,
+  "category": "Cryptography",
+  "author": "IC_CTF",
+  "source": "https://play.picoctf.org/practice/challenge/162",
+  "files": [
+    "values",
+    "RsaCtfTool.py"
+  ]
+}
