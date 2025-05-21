@@ -698,7 +698,10 @@ class Agent:
 
         for hook in self.hooks:
             hook.on_model_query(query=self.local_history, agent=self.name)
-        return self.model.query(self.local_history)
+
+        res = self.model.query(self.local_history)
+        self.logger.debug(f"🤣 MODEL OUTPUT\n{res}")
+        return res
 
     def retry_after_format_fail(self, output: str) -> str:
         """Ask the model to correct (without committing to persistent history) after a malformatted model output"""

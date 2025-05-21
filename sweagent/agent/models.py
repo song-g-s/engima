@@ -20,6 +20,12 @@ from tenacity import (
 )
 # 在import部分添加
 import requests
+import urllib3
+urllib3.disable_warnings()
+# import os
+ 
+# os.environ["http_proxy"] = "http://localhost:7890"
+# os.environ["https_proxy"] = "http://localhost:7890"
 
 from sweagent.agent.commands import Command
 from sweagent.utils.config import keys_config
@@ -1019,7 +1025,12 @@ class SiliconFlowModel(BaseModel):
             "max_context": 1_024_000_000_000_000_000_000,
             "cost_per_input_token": 0.000001,   # 根据实际成本调整
             "cost_per_output_token": 0.000004,  # 根据实际成本调整
-        }
+        },
+        "Qwen/Qwen3-8B": {
+            "max_context": 1_024_000_000_000_000_000_000,
+            "cost_per_input_token": 0.00000,   # 根据实际成本调整
+            "cost_per_output_token": 0.00000,  # 根据实际成本调整
+        },
     }
 
     SHORTCUTS = {
@@ -1099,7 +1110,7 @@ class SiliconFlowModel(BaseModel):
             }
             
             logger.debug(f"Querying SiliconFlow API with model: {self.api_model_display}")
-            response = requests.post(self.api_url, headers=self.headers, json=payload, timeout=60)
+            response = requests.post(self.api_url, headers=self.headers, json=payload, timeout=60, verify=False)
             
             if response.status_code == 429:
                 logger.warning(f"Rate limit exceeded: {response.text[:200]}...")
