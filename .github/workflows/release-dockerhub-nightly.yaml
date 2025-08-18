@@ -18,7 +18,7 @@ jobs:
             username: sweagent
             password: ${{ secrets.DOCKERHUB_TOKEN }}
         - name: Checkout code
-          uses: actions/checkout@v4
+          uses: actions/checkout@v5
         - name: Run release script
           if: (github.ref == 'refs/heads/main') && (github.repository == 'SWE-agent/SWE-agent')
           run: ./release_dockerhub.sh sweagent latest
